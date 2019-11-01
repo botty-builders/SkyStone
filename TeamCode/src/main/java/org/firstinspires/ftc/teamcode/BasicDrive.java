@@ -73,10 +73,10 @@ public class BasicDrive extends LinearOpMode {
 
     @Override
     public void runOpMode() {
-        double left_x;
+//        double left_x;
         double left_y;
         double right_x;
-        double right_y;
+//        double right_y;
         double drive;
         double turn;
         double max;
@@ -137,10 +137,22 @@ public class BasicDrive extends LinearOpMode {
                 right /= max;
             }
 
+            // Use gamepad y and x to control arm up and down, respectively
+            if (gamepad1.x) robot.arm.setPower(-0.3);
+            else if (gamepad1.y) robot.arm.setPower(0.4);
+            else robot.arm.setPower(0.0);
+
+            // Use right bumper to start drum rotation
+            if (gamepad1.right_bumper) robot.drum.setPower(-1.0);
+            else robot.drum.setPower(0.0);
 
             // Output the safe vales to the motor drives.
             robot.leftDrive.setPower(left);
             robot.rightDrive.setPower(right);
+
+            // Use b and a to move the flipper up and down, respectively
+            if (gamepad1.a) robot.flipper.setPosition(BasicHardwareMap.FLIPPER_DOWN);
+            else if (gamepad1.b) robot.flipper.setPosition(BasicHardwareMap.FLIPPER_UP);
 
             // Use gamepad left & right Bumpers to open and close the claw
             /*

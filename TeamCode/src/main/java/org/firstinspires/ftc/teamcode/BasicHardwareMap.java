@@ -56,14 +56,16 @@ public class BasicHardwareMap
     /* Public OpMode members. */
     public DcMotor  leftDrive;
     public DcMotor  rightDrive;
-    public DcMotor  brush;
-    public Servo    basket    = null;
-    public DcMotor    arm    = null;
+    public DcMotor  drum;
+    public Servo    flipper;
+    public DcMotor  arm;
 
 
     public static final double MID_SERVO       =  0.5 ;
     public static final double ARM_UP_POWER    =  0.45 ;
     public static final double ARM_DOWN_POWER  = -0.45 ;
+    public static final double FLIPPER_UP = .2;
+    public static final double FLIPPER_DOWN = -.45;
 
     /* local OpMode members. */
     HardwareMap hwMap           =  null;
@@ -82,7 +84,9 @@ public class BasicHardwareMap
         // Define and Initialize Motors
         leftDrive  = hwMap.get(DcMotor.class, "left_drive");
         rightDrive = hwMap.get(DcMotor.class, "right_drive");
-        //leftArm    = hwMap.get(DcMotor.class, "left_arm");
+        arm = hwMap.get(DcMotor.class, "arm");
+        drum = hwMap.get(DcMotor.class, "drum");
+        flipper = hwMap.get(Servo.class, "flipper");
         //leftDrive.setDirection(DcMotor.Direction.FORWARD); // Set to REVERSE if using AndyMark motors
         //rightDrive.setDirection(DcMotor.Direction.REVERSE);// Set to FORWARD if using AndyMark motors
 
