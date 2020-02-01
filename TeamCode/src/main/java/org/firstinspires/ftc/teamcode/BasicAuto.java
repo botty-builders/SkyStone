@@ -102,6 +102,7 @@ public class BasicAuto extends OpMode
         if (runtime.seconds() > waitTime + 4 * driveTime + rotateTime) robot.mecanumDrive(0, 0, 0);
         else if (runtime.seconds() > waitTime + 3 * driveTime + rotateTime) robot.mecanumDrive(0.2, 0, 0);
         else if (runtime.seconds() > waitTime + 2 * driveTime + rotateTime) robot.mecanumDrive(0, 0, 0);
+        else if (runtime.seconds() > waitTime + 2 * driveTime && blueTeam) robot.mecanumDrive(0, 0, -0.2);
         else if (runtime.seconds() > waitTime + 2 * driveTime) robot.mecanumDrive(0, 0, 0.2);
         else if (runtime.seconds() > waitTime + driveTime) robot.mecanumDrive(0, 0, 0);
         else if (runtime.seconds() > waitTime) robot.mecanumDrive(0.2, 0, 0);
