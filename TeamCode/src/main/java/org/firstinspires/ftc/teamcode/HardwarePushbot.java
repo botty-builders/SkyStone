@@ -179,10 +179,27 @@ public class HardwarePushbot
 //        }
 
 
-        rightFrontDrive.setPower(drive + strafe + rotate);
-        leftFrontDrive.setPower(drive - strafe - rotate);
-        leftRearDrive.setPower(drive + strafe - rotate);
-        rightRearDrive.setPower(drive - strafe + rotate);
+//        rightFrontDrive.setPower(drive + strafe + rotate);
+//        leftFrontDrive.setPower(drive - strafe - rotate);
+//        leftRearDrive.setPower(drive + strafe - rotate);
+//        rightRearDrive.setPower(drive - strafe + rotate);
+
+        double FR = drive + strafe + rotate;
+        double FL = drive - strafe - rotate;
+        double RL = drive + strafe - rotate;
+        double RR = drive - strafe + rotate;
+
+        double max = Math.max(Math.max(FR, FL), Math.max(RL, RR));
+
+        FR /= max;
+        FL /= max;
+        RL /= max;
+        RR /= max;
+
+        rightFrontDrive.setPower(FR);
+        leftFrontDrive.setPower(FL);
+        leftRearDrive.setPower(RL);
+        rightRearDrive.setPower(RR);
     }
 }
 
