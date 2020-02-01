@@ -30,8 +30,10 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 /**
@@ -56,8 +58,10 @@ public class HardwarePushbot
     public DcMotor  rightArm   = null;
 
 //    public DcMotor  leftArm     = null;
-    public Servo    leftClaw    = null;
-    public Servo    rightClaw   = null;
+    public Servo leftClaw = null;
+    public Servo rightClaw = null;
+
+    public DigitalChannel grabberLimit;
 
     public static final double MID_SERVO       =  0.5 ;
     public static final double ARM_UP_POWER    =  0.45 ;
@@ -81,6 +85,10 @@ public class HardwarePushbot
     public static final int RIGHT_BRIDGE          =  -158 ;
     public static final int RIGHT_LEV3            =  -145 ;
 
+    public double rightFrontLastPos = 0.0;
+    public double leftFrontLastPos = 0.0;
+    public double rightRearLastPos = 0.0;
+    public double leftRearLastPos = 0.0;
 
 
     /* local OpMode members. */
@@ -98,12 +106,12 @@ public class HardwarePushbot
         hwMap = ahwMap;
 
         // Define and Initialize Motors
-        rightFrontDrive  = hwMap.get(DcMotor.class, "front_right");
-        leftFrontDrive  = hwMap.get(DcMotor.class, "front_left");
-        leftRearDrive  = hwMap.get(DcMotor.class, "bottom_left");
-        rightRearDrive  = hwMap.get(DcMotor.class, "bottom_right");
-        rightArm  = hwMap.get(DcMotor.class, "rightArm");
-        leftArm  = hwMap.get(DcMotor.class, "leftArm");
+        rightFrontDrive = hwMap.get(DcMotor.class, "front_right");
+        leftFrontDrive = hwMap.get(DcMotor.class, "front_left");
+        leftRearDrive = hwMap.get(DcMotor.class, "bottom_left");
+        rightRearDrive = hwMap.get(DcMotor.class, "bottom_right");
+        rightArm = hwMap.get(DcMotor.class, "rightArm");
+        leftArm = hwMap.get(DcMotor.class, "leftArm");
         leftFrontDrive.setDirection(DcMotor.Direction.FORWARD); // Set to REVERSE if using AndyMark motors
         leftRearDrive.setDirection(DcMotor.Direction.FORWARD); // Set to REVERSE if using AndyMark motors
         rightFrontDrive.setDirection(DcMotor.Direction.REVERSE);// Set to FORWARD if using AndyMark motors
@@ -114,8 +122,8 @@ public class HardwarePushbot
         leftRearDrive.setPower(0);
         rightFrontDrive.setPower(0);
         rightRearDrive.setPower(0);
-//        leftArm.setPower(0);
-//        rightArm.setPower(0);
+        leftArm.setPower(0);
+        rightArm.setPower(0);
 
         // Set all motors to run without encoders.
         // May want to use RUN_USING_ENCODERS if encoders are installed.
@@ -123,24 +131,58 @@ public class HardwarePushbot
         leftRearDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightFrontDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightRearDrive.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
         leftArm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightArm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rightArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        leftArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-//        leftArm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-//        rightArm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        leftArm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rightArm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         // Define and initialize ALL installed servos.
-        leftClaw  = hwMap.get(Servo.class, "leftClaw");
+        leftClaw = hwMap.get(Servo.class, "leftClaw");
         rightClaw = hwMap.get(Servo.class, "rightClaw");
         leftClaw.setPosition(MID_SERVO);
         rightClaw.setPosition(MID_SERVO);
+
+        // Define and initialize all installed sensors
+        grabberLimit = hwMap.get(DigitalChannel.class, "touchSensor");
+        grabberLimit.setMode(DigitalChannel.Mode.INPUT);
     }
 
     public void mecanumDrive(double drive, double strafe, double rotate) {
-        rightFrontDrive.setPower(drive - strafe + rotate);
-        leftFrontDrive.setPower(drive + strafe - rotate);
-        leftRearDrive.setPower(drive - strafe - rotate);
-        rightRearDrive.setPower(drive + strafe + rotate);
+        // Preserve the ratios of drive, strafe, and rotate if their sum is outside the [-1, 1] bounds
+//        if (drive + strafe + rotate > 1.0 || drive + strafe + rotate < 1.0) {
+//            double factor = 1 / (drive + strafe + rotate);
+//            drive *= factor;
+//            strafe *= factor;
+//            rotate *= factor;
+//        }
+//        if (drive - strafe - rotate > 1.0 || drive - strafe - rotate < 1.0) {
+//            double factor = 1 / (drive - strafe - rotate);
+//            drive *= factor;
+//            strafe *= factor;
+//            rotate *= factor;
+//        }
+//        if (drive + strafe - rotate > 1.0 || drive + strafe - rotate < 1.0) {
+//            double factor = 1 / (drive + strafe - rotate);
+//            drive *= factor;
+//            strafe *= factor;
+//            rotate *= factor;
+//        }
+//        if (drive - strafe + rotate > 1.0 || drive - strafe + rotate < 1.0) {
+//            double factor = 1 / (drive - strafe + rotate);
+//            drive *= factor;
+//            strafe *= factor;
+//            rotate *= factor;
+//        }
+
+
+        rightFrontDrive.setPower(drive + strafe + rotate);
+        leftFrontDrive.setPower(drive - strafe - rotate);
+        leftRearDrive.setPower(drive + strafe - rotate);
+        rightRearDrive.setPower(drive - strafe + rotate);
     }
 }
 
