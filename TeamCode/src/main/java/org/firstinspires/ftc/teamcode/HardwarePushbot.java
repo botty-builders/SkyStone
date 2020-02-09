@@ -189,12 +189,16 @@ public class HardwarePushbot
         double RL = drive + strafe - rotate;
         double RR = drive - strafe + rotate;
 
-        double max = Math.max(Math.max(FR, FL), Math.max(RL, RR));
+        double max = Math.max(
+                Math.max(Math.abs(FR), Math.abs(FL)),
+                Math.max(Math.abs(RL), Math.abs(RR)));
 
-        FR /= max;
-        FL /= max;
-        RL /= max;
-        RR /= max;
+        if (max > 1) {
+            FR /= max;
+            FL /= max;
+            RL /= max;
+            RR /= max;
+        }
 
         rightFrontDrive.setPower(FR);
         leftFrontDrive.setPower(FL);

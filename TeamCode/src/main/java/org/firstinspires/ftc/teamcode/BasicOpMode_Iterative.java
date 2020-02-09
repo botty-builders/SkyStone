@@ -56,7 +56,8 @@ public class BasicOpMode_Iterative extends OpMode
     private ElapsedTime dt = new ElapsedTime();
     private HardwarePushbot robot = new HardwarePushbot();
     private PID armPid = new PID(8.0, 0.00001, 500.0);
-    private double speed = 0.5;
+    private double speed = 0.3;
+    private double accTime = 0.5;
 
     private double drive = 0.0;
     private double strafe = 0.0;
@@ -95,10 +96,10 @@ public class BasicOpMode_Iterative extends OpMode
     @Override
     public void start() {
         runtime.reset();
-        while (robot.rightArm.getCurrentPosition() > robot.LEFT_LEV3) {
-            robot.rightArm.setPower(-0.2);
-            robot.leftArm.setPower(0.2);
-        }
+//        while (robot.rightArm.getCurrentPosition() > robot.LEFT_LEV3) {
+//            robot.rightArm.setPower(-0.2);
+//            robot.leftArm.setPower(0.2);
+//        }
         robot.rightArm.setPower(0.0);
         robot.leftArm.setPower(0.0);
     }
@@ -110,28 +111,28 @@ public class BasicOpMode_Iterative extends OpMode
     public void loop() {
         // Choose whether to drive with joystick or nudge with dpad
         if (gamepad1.dpad_up || gamepad1.dpad_left || gamepad1.dpad_down || gamepad1.dpad_right) {
-            drive = (gamepad1.dpad_down ? 0.2 : 0) - (gamepad1.dpad_up ? 0.2 : 0);
-            strafe = 0.0;
-            rotate = (gamepad1.dpad_right ? 0.4 : 0) - (gamepad1.dpad_left ? 0.4 : 0);
+            drive = (gamepad1.dpad_down ? 0.1 : 0) - (gamepad1.dpad_up ? 0.1 : 0);
+            strafe = (gamepad1.dpad_right ? 0.4 : 0) - (gamepad1.dpad_left ? 0.4 : 0);
+            rotate = 0.0;
         } else {
             drive = Math.pow(gamepad1.left_stick_y, 3) * speed;
             strafe = gamepad1.left_stick_x;
-            rotate = gamepad1.right_stick_x * speed;
+            rotate = Math.pow(gamepad1.right_stick_x, 3) * speed;
         }
         robot.mecanumDrive(drive, strafe, rotate);
 
         // Check this first or else we won't be able to spit the block out.
         if (gamepad1.left_bumper) {
-            robot.rightClaw.setPosition(0.0);
-            robot.leftClaw.setPosition(1.0);
+            robot.rightClaw.setPosition(1.0);
+            robot.leftClaw.setPosition(0.0);
         // Turn off if the limit switch is hit
         } else if (!robot.grabberLimit.getState()) {
             robot.rightClaw.setPosition(0.5);
             robot.leftClaw.setPosition(0.5);
         // Suck the lego piece in.
         } else if (gamepad1.right_bumper) {
-            robot.rightClaw.setPosition(1.0);
-            robot.leftClaw.setPosition(0.0);
+            robot.rightClaw.setPosition(0.0);
+            robot.leftClaw.setPosition(1.0);
         // Slow inward creep by default
         } else {
             robot.rightClaw.setPosition(0.6);
@@ -194,14 +195,16 @@ public class BasicOpMode_Iterative extends OpMode
         telemetry.addData("PID Integral", armPid.getI());
         telemetry.addData("PID Derivative", armPid.getD());
         telemetry.addLine();
-        telemetry.addData("right front wheel speed",
-                (robot.rightFrontDrive.getCurrentPosition() - robot.rightFrontLastPos) / dt.seconds());
-        telemetry.addData("right rear wheel speed",
-                (robot.rightRearDrive.getCurrentPosition() - robot.rightRearLastPos) / dt.seconds());
-        telemetry.addData("left front wheel speed",
-                (robot.leftFrontDrive.getCurrentPosition() - robot.leftFrontLastPos) / dt.seconds());
-        telemetry.addData("left rear wheel speed",
-                (robot.leftRearDrive.getCurrentPosition() - robot.leftRearLastPos) / dt.seconds());
+        telemetry.addData("right front wheel speed", "%.6f",
+                (robot.rightFrontDrive.getCurrentPosition() - 0 * robot.rightFrontLastPos));
+        telemetry.addData("right rear wheel speed", "%.6f",
+                (robot.rightRearDrive.getCurrentPosition() - 0 * robot.rightRearLastPos));
+        telemetry.addData("left front wheel speed", "%.6f",
+                (robot.leftFrontDrive.getCurrentPosition() - 0 * robot.leftFrontLastPos));
+        telemetry.addData("left rear wheel speed", "%.6f",
+                (robot.leftRearDrive.getCurrentPosition() - 0 * robot.leftRearLastPos));
+        telemetry.addData("dt", "%.6f", dt.seconds());
+
 
         robot.rightFrontLastPos = robot.rightFrontDrive.getCurrentPosition();
         robot.rightRearLastPos = robot.rightRearDrive.getCurrentPosition();
