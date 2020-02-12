@@ -99,13 +99,7 @@ public class BasicAuto extends OpMode
      */
     @Override
     public void loop() {
-        if (runtime.seconds() > waitTime + 4 * driveTime + rotateTime) robot.mecanumDrive(0, 0, 0);
-        else if (runtime.seconds() > waitTime + 3 * driveTime + rotateTime) robot.mecanumDrive(0.2, 0, 0);
-        else if (runtime.seconds() > waitTime + 2 * driveTime + rotateTime) robot.mecanumDrive(0, 0, 0);
-        else if (runtime.seconds() > waitTime + 2 * driveTime) robot.mecanumDrive(0, 0, 0.2);
-        else if (runtime.seconds() > waitTime + driveTime) robot.mecanumDrive(0, 0, 0);
-        else if (runtime.seconds() > waitTime) robot.mecanumDrive(0.2, 0, 0);
-        else robot.mecanumDrive(0, 0, 0);
+        if (runtime.seconds() > 29.5) robot.mecanumDrive(0.2, 0, 0);
     }
 
     /*
