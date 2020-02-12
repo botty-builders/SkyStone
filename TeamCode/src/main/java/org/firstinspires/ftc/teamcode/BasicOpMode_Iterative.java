@@ -138,16 +138,18 @@ public class BasicOpMode_Iterative extends OpMode
             robot.rightArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
             robot.leftArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-            armPower = (gamepad1.right_trigger - gamepad1.left_trigger) * 0.6;
+            armPower = (gamepad1.right_trigger - gamepad1.left_trigger) * 0.75;
 
             robot.leftArm.setPower(armPower);
             robot.rightArm.setPower(-armPower);
-        }
-
-        // Set power for run to position
-        if (robot.rightArm.isBusy() || robot.leftArm.isBusy()) {
+        } else if (robot.rightArm.isBusy() || robot.leftArm.isBusy()) {
+            // Set power for run to position
             robot.leftArm.setPower(1.0);
             robot.rightArm.setPower(-1.0);
+        } else {
+            // Default to zero power
+            robot.leftArm.setPower(0.0);
+            robot.rightArm.setPower(0.0);
         }
 
         if (gamepad1.a) {
