@@ -139,14 +139,10 @@ public class HardwarePushbot
         leftArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-//        leftArm.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER,
-//                new PIDFCoefficients(100.0, 0.0, 0.0, 0.0));
-//        rightArm.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER,
-//                new PIDFCoefficients(100.0, 0.0, 0.0, 0.0));
-//        leftArm.setPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION,
-//                new PIDFCoefficients(100.0, 0.0, 0.0, 0.0));
-//        rightArm.setPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION,
-//                new PIDFCoefficients(100.0, 0.0, 0.0, 0.0));
+        leftArm.setPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION,
+                new PIDFCoefficients(50.0, 0.0, 0.0, 0.0));
+        rightArm.setPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION,
+                new PIDFCoefficients(50.0, 0.0, 0.0, 0.0));
 
         leftArm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightArm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
