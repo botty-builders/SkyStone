@@ -30,8 +30,10 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DigitalChannel;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.TouchSensor;
 import com.qualcomm.robotcore.util.ElapsedTime;
@@ -54,8 +56,8 @@ public class HardwarePushbot
     public DcMotor  rightRearDrive   = null;
     public DcMotor  leftFrontDrive   = null;
     public DcMotor  leftRearDrive   = null;
-    public DcMotor  leftArm   = null;
-    public DcMotor  rightArm   = null;
+    public DcMotorEx  leftArm   = null;
+    public DcMotorEx  rightArm   = null;
 
 //    public DcMotor  leftArm     = null;
     public Servo leftClaw = null;
@@ -110,8 +112,8 @@ public class HardwarePushbot
         leftFrontDrive = hwMap.get(DcMotor.class, "front_left");
         leftRearDrive = hwMap.get(DcMotor.class, "bottom_left");
         rightRearDrive = hwMap.get(DcMotor.class, "bottom_right");
-        rightArm = hwMap.get(DcMotor.class, "rightArm");
-        leftArm = hwMap.get(DcMotor.class, "leftArm");
+        rightArm = (DcMotorEx) hwMap.get(DcMotorEx.class, "rightArm");
+        leftArm = (DcMotorEx) hwMap.get(DcMotorEx.class, "leftArm");
         leftFrontDrive.setDirection(DcMotor.Direction.FORWARD); // Set to REVERSE if using AndyMark motors
         leftRearDrive.setDirection(DcMotor.Direction.FORWARD); // Set to REVERSE if using AndyMark motors
         rightFrontDrive.setDirection(DcMotor.Direction.REVERSE);// Set to FORWARD if using AndyMark motors
@@ -134,8 +136,17 @@ public class HardwarePushbot
 
         leftArm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightArm.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        rightArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         leftArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        rightArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+//        leftArm.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER,
+//                new PIDFCoefficients(100.0, 0.0, 0.0, 0.0));
+//        rightArm.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER,
+//                new PIDFCoefficients(100.0, 0.0, 0.0, 0.0));
+//        leftArm.setPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION,
+//                new PIDFCoefficients(100.0, 0.0, 0.0, 0.0));
+//        rightArm.setPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION,
+//                new PIDFCoefficients(100.0, 0.0, 0.0, 0.0));
 
         leftArm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightArm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
