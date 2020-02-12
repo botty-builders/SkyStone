@@ -33,7 +33,6 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 /**
@@ -58,22 +57,15 @@ public class BasicOpMode_Iterative extends OpMode
     private ElapsedTime runtime = new ElapsedTime();
     private ElapsedTime dt = new ElapsedTime();
     private HardwarePushbot robot = new HardwarePushbot();
-//    private PID armPid = new PID(8.0, 0.00001, 500.0);
     private double speed = 0.3;
-    private double accTime = 0.5;
 
     private double drive = 0.0;
     private double strafe = 0.0;
     private double rotate = 0.0;
     private double armPower = 0.0;
-    private double lastArmPower = 0.0;
-    private double inverseAccTime = .33; // 1/(3 second)
-    private int rightArmTarget;
-    private int leftArmTarget;
 
-//    private boolean arm_usePid = false;
-
-
+    private int rightArmTemp = robot.RIGHT_LEV3;
+    private int leftArmTemp = robot.LEFT_LEV3;
 
     /*
      * Code to run ONCE when the driver hits INIT
@@ -102,10 +94,6 @@ public class BasicOpMode_Iterative extends OpMode
     @Override
     public void start() {
         runtime.reset();
-//        while (robot.rightArm.getCurrentPosition() > robot.LEFT_LEV3) {
-//            robot.rightArm.setPower(-0.2);
-//            robot.leftArm.setPower(0.2);
-//        }
         robot.rightArm.setPower(0.0);
         robot.leftArm.setPower(0.0);
     }
@@ -116,15 +104,16 @@ public class BasicOpMode_Iterative extends OpMode
     @Override
     public void loop() {
         // Choose whether to drive with joystick or nudge with dpad
-        if (gamepad1.dpad_up || gamepad1.dpad_left || gamepad1.dpad_down || gamepad1.dpad_right) {
-            drive = (gamepad1.dpad_down ? 0.1 : 0) - (gamepad1.dpad_up ? 0.1 : 0);
-            strafe = (gamepad1.dpad_right ? 0.4 : 0) - (gamepad1.dpad_left ? 0.4 : 0);
-            rotate = 0.0;
-        } else {
+        // TODO: uncomment and edit dpad nudge code after arm positions are set.
+//        if (gamepad1.dpad_up || gamepad1.dpad_left || gamepad1.dpad_down || gamepad1.dpad_right) {
+//            drive = (gamepad1.dpad_down ? 0.1 : 0) - (gamepad1.dpad_up ? 0.1 : 0);
+//            strafe = (gamepad1.dpad_right ? 0.4 : 0) - (gamepad1.dpad_left ? 0.4 : 0);
+//            rotate = 0.0;
+//        } else {
             drive = Math.pow(gamepad1.left_stick_y, 3) * speed;
             strafe = gamepad1.left_stick_x;
             rotate = Math.pow(gamepad1.right_stick_x, 3) * speed;
-        }
+//        }
         robot.mecanumDrive(drive, strafe, rotate);
 
         // Check this first or else we won't be able to spit the block out.
@@ -145,173 +134,73 @@ public class BasicOpMode_Iterative extends OpMode
             robot.leftClaw.setPosition(0.4);
         }
 
-//        if (gamepad1.right_trigger > .1 || gamepad1.left_trigger > .1)
-//            armPower = Math.pow(gamepad1.right_trigger - gamepad1.left_trigger, 3);
-//        else
-//            armPower = 0.0;
-//        robot.leftArm.setPower(armPower);
-//        robot.rightArm.setPower(-armPower);
+        if (gamepad1.right_trigger > 0.05 || gamepad1.left_trigger > 0.05) { // set power for manual control
+            robot.rightArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+            robot.leftArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        if (gamepad1.right_trigger > 0.05 || gamepad1.left_trigger > 0.05) {
-//            arm_usePid = false;
-            robot.rightArm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-            robot.leftArm.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
-//            armPower += Math.pow(gamepad1.right_trigger - gamepad1.left_trigger, 3) * 0.3;
-//            armPower = Math.pow(gamepad1.right_trigger - gamepad1.left_trigger, 3) * 0.6;
-            armPower = (gamepad1.right_trigger - gamepad1.left_trigger) * 0.6;
-
-            // armpower max acc
-//            if (armPower - lastArmPower > inverseAccTime * dt.seconds()) {
-//                armPower += inverseAccTime * dt.seconds();
-//            } else if (armPower - lastArmPower < -inverseAccTime * dt.seconds()) {
-//                armPower -= inverseAccTime * dt.seconds();
-//            }
-
-//            lastArmPower = armPower;
+            armPower = (gamepad1.right_trigger - gamepad1.left_trigger) * 0.75;
 
             robot.leftArm.setPower(armPower);
             robot.rightArm.setPower(-armPower);
+        } else if (robot.rightArm.isBusy() || robot.leftArm.isBusy()) {
+            // Set power for run to position
+            robot.leftArm.setPower(1.0);
+            robot.rightArm.setPower(-1.0);
         } else {
-//            if (robot.rightArm.getCurrentPosition() < -90) armPower = 0.2; // default power to hold position
-//            else armPower = 0.0;
-//            robot.leftArm.setPower(-armPower);
-//            robot.rightArm.setPower(armPower);
+            // Default to zero power
             robot.leftArm.setPower(0.0);
             robot.rightArm.setPower(0.0);
-
         }
-//        else if (gamepad1.a && !robot.rightArm.isBusy() && !robot.leftArm.isBusy()) {
-//            telemetry.addData("a", gamepad1.a);
-////            arm_usePid = true;
-//            rightArmTarget = robot.RIGHT_GRAB;
-//            leftArmTarget = robot.LEFT_GRAB;
-//            robot.rightArm.setTargetPosition(rightArmTarget);
-//            robot.leftArm.setTargetPosition(leftArmTarget);
-//            robot.rightArm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//            robot.leftArm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//        } else if (gamepad1.x && !robot.rightArm.isBusy() && !robot.leftArm.isBusy()) {
-////            arm_usePid = true;
-//            rightArmTarget = robot.RIGHT_LEV1;
-//            leftArmTarget = robot.LEFT_LEV1;
-//            robot.rightArm.setTargetPosition(rightArmTarget);
-//            robot.leftArm.setTargetPosition(leftArmTarget);
-//            robot.rightArm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//            robot.leftArm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//        } else if (gamepad1.y && !robot.rightArm.isBusy() && !robot.leftArm.isBusy()) {
-////            arm_usePid = true;
-//            rightArmTarget = robot.RIGHT_BRIDGE;
-//            leftArmTarget = robot.LEFT_BRIDGE;
-//            robot.rightArm.setTargetPosition(rightArmTarget);
-//            robot.leftArm.setTargetPosition(leftArmTarget);
-//            robot.rightArm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//            robot.leftArm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//        } else if (gamepad1.b && !robot.rightArm.isBusy() && !robot.leftArm.isBusy()) {
-////            arm_usePid = true;
-//            rightArmTarget = robot.RIGHT_LEV3;
-//            leftArmTarget = robot.LEFT_LEV3;
-//            robot.rightArm.setTargetPosition(rightArmTarget);
-//            robot.leftArm.setTargetPosition(leftArmTarget);
-//            robot.rightArm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//            robot.leftArm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-//        } else {
-//            // Should have no effect if runmode is run_to_position.
-//            robot.leftArm.setPower(0.0);
-//            robot.rightArm.setPower(0.0);
-//        }
-//
-//        if (robot.rightArm.isBusy()) {
-//            robot.leftArm.setPower(0.5);
-//            robot.rightArm.setPower(-0.5);
-//        } else {
-//            robot.leftArm.setPower(0.0);
-//            robot.rightArm.setPower(0.0);
-//        }
-
-
-//        else if (!arm_usePid) { // Hold position after releasing triggers
-//            arm_usePid = true;
-//            rightArmTarget = robot.rightArm.getCurrentPosition();
-//        }
-
-//        if (arm_usePid) {
-//            armPid.setError(rightArmTarget - robot.rightArm.getCurrentPosition());
-//            robot.rightArm.setPower(armPid.power());
-//            robot.leftArm.setPower(-armPid.power());
-//        }
 
         if (gamepad1.a) {
-            robot.leftArm.setPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION,
-                    new PIDFCoefficients(
-                            robot.rightArm.getPIDFCoefficients(DcMotorEx.RunMode.RUN_TO_POSITION).p * 1.01,
-                            robot.rightArm.getPIDFCoefficients(DcMotorEx.RunMode.RUN_TO_POSITION).i,
-                            0.0, 0.0));
-            robot.rightArm.setPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION,
-                    new PIDFCoefficients(
-                            robot.leftArm.getPIDFCoefficients(DcMotorEx.RunMode.RUN_TO_POSITION).p * 1.01,
-                            robot.leftArm.getPIDFCoefficients(DcMotorEx.RunMode.RUN_TO_POSITION).i,
-                            0.0, 0.0));
+            robot.rightArm.setTargetPosition(robot.RIGHT_GRAB);
+            robot.leftArm.setTargetPosition(robot.LEFT_GRAB);
+            robot.rightArm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            robot.leftArm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        } else if (gamepad1.x) {
+            robot.rightArm.setTargetPosition(robot.RIGHT_LEV1);
+            robot.leftArm.setTargetPosition(robot.LEFT_LEV1);
+            robot.rightArm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            robot.leftArm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        } else if (gamepad1.y) {
+            robot.rightArm.setTargetPosition(robot.RIGHT_BRIDGE);
+            robot.leftArm.setTargetPosition(robot.LEFT_BRIDGE);
+            robot.rightArm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            robot.leftArm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        } else if (gamepad1.b) {
+            robot.rightArm.setTargetPosition(robot.RIGHT_LEV3);
+            robot.leftArm.setTargetPosition(robot.LEFT_LEV3);
+            robot.rightArm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            robot.leftArm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         }
 
-        if (gamepad1.b) {
-            robot.leftArm.setPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION,
-                    new PIDFCoefficients(
-                            robot.rightArm.getPIDFCoefficients(DcMotorEx.RunMode.RUN_TO_POSITION).p * 0.99,
-                            robot.rightArm.getPIDFCoefficients(DcMotorEx.RunMode.RUN_TO_POSITION).i,
-                            0.0, 0.0));
-            robot.rightArm.setPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION,
-                    new PIDFCoefficients(
-                            robot.leftArm.getPIDFCoefficients(DcMotorEx.RunMode.RUN_TO_POSITION).p * 0.99,
-                            robot.leftArm.getPIDFCoefficients(DcMotorEx.RunMode.RUN_TO_POSITION).i,
-                            0.0, 0.0));
+        // TODO: remove extra dpad code when arm positions are set.
+        if (gamepad1.dpad_up) {
+            rightArmTemp++;
+            leftArmTemp--;
+            robot.rightArm.setTargetPosition(rightArmTemp);
+            robot.leftArm.setTargetPosition(leftArmTemp);
+            robot.rightArm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            robot.leftArm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        } else if (gamepad1.dpad_down) {
+            rightArmTemp--;
+            leftArmTemp++;
+            robot.rightArm.setTargetPosition(rightArmTemp);
+            robot.leftArm.setTargetPosition(leftArmTemp);
+            robot.rightArm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            robot.leftArm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         }
 
-        if (gamepad1.x) {
-            robot.leftArm.setPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION,
-                    new PIDFCoefficients(
-                            robot.rightArm.getPIDFCoefficients(DcMotorEx.RunMode.RUN_TO_POSITION).p,
-                            robot.rightArm.getPIDFCoefficients(DcMotorEx.RunMode.RUN_TO_POSITION).i * 1.01,
-                            0.0, 0.0));
-            robot.rightArm.setPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION,
-                    new PIDFCoefficients(
-                            robot.leftArm.getPIDFCoefficients(DcMotorEx.RunMode.RUN_TO_POSITION).p,
-                            robot.leftArm.getPIDFCoefficients(DcMotorEx.RunMode.RUN_TO_POSITION).i * 1.01,
-                            0.0, 0.0));
-        }
-
-        if (gamepad1.y) {
-            robot.leftArm.setPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION,
-                    new PIDFCoefficients(
-                            robot.rightArm.getPIDFCoefficients(DcMotorEx.RunMode.RUN_TO_POSITION).p,
-                            robot.rightArm.getPIDFCoefficients(DcMotorEx.RunMode.RUN_TO_POSITION).i * 0.99,
-                            0.0, 0.0));
-            robot.rightArm.setPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION,
-                    new PIDFCoefficients(
-                            robot.leftArm.getPIDFCoefficients(DcMotorEx.RunMode.RUN_TO_POSITION).p,
-                            robot.leftArm.getPIDFCoefficients(DcMotorEx.RunMode.RUN_TO_POSITION).i * 0.99,
-                            0.0, 0.0));
-        }
-
-
-//        telemetry.addData("Left claw pos:", robot.leftClaw.getPosition());
-//        telemetry.addData("Right claw pos:", robot.rightClaw.getPosition());
         telemetry.addData("Claw pos:", robot.rightClaw.getPosition());
         telemetry.addData("Grabber limit switch:",
                 robot.grabberLimit.getState() ? "not pressed" : "pressed");
         telemetry.addLine();
         telemetry.addData("Right arm pos:", robot.rightArm.getCurrentPosition());
-        telemetry.addData("Right arm power", robot.rightArm.getPower());
-        telemetry.addData("right arm mode", robot.leftArm.getMode());
-//        telemetry.addData("left arm mode", robot.leftArm.getMode());
-//        telemetry.addData("PID target", rightArmTarget);
-//        telemetry.addData("PID error", rightArmTarget - robot.rightArm.getCurrentPosition());
+        telemetry.addData("Left arm pos:", robot.leftArm.getCurrentPosition());
+        telemetry.addData("Right arm target pos:", robot.rightArm.getTargetPosition());
+        telemetry.addData("Left arm target pos:", robot.leftArm.getTargetPosition());
         telemetry.addLine();
-        telemetry.addData("PID Proportional",
-                robot.rightArm.getPIDFCoefficients(DcMotorEx.RunMode.RUN_TO_POSITION).p);
-        telemetry.addData("PID Integral",
-                robot.rightArm.getPIDFCoefficients(DcMotorEx.RunMode.RUN_TO_POSITION).i);
-        telemetry.addData("PID Derivative",
-                robot.rightArm.getPIDFCoefficients(DcMotorEx.RunMode.RUN_TO_POSITION).d);
+        telemetry.addData("Right arm power", robot.rightArm.getPower());
         telemetry.addLine();
         telemetry.addData("right front wheel speed", "%.6f",
                 (robot.rightFrontDrive.getCurrentPosition() - 0 * robot.rightFrontLastPos));
