@@ -74,10 +74,6 @@ public class BasicOpMode_Iterative extends OpMode
     public void init() {
         robot.init(hardwareMap);
 
-        // Set sucker servos to neutral position.
-        robot.rightClaw.setPosition(0.5);
-        robot.leftClaw.setPosition(0.5);
-
         // Tell the driver that initialization is complete.
         telemetry.addData("Status", "Initialized");
     }
@@ -94,8 +90,6 @@ public class BasicOpMode_Iterative extends OpMode
     @Override
     public void start() {
         runtime.reset();
-        robot.rightArm.setPower(0.0);
-        robot.leftArm.setPower(0.0);
     }
 
     /*
@@ -116,6 +110,7 @@ public class BasicOpMode_Iterative extends OpMode
 //        }
         robot.mecanumDrive(drive, strafe, rotate);
 
+        // TODO: use right bumper to close the claw, left bumper to open the claw.
         // Check this first or else we won't be able to spit the block out.
         if (gamepad1.left_bumper) {
             robot.rightClaw.setPosition(1.0);
@@ -191,6 +186,7 @@ public class BasicOpMode_Iterative extends OpMode
             robot.leftArm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         }
 
+        // TODO: find which telemetry updates are unnecessary and remove them to avoid clutter.
         telemetry.addData("Claw pos:", robot.rightClaw.getPosition());
         telemetry.addData("Grabber limit switch:",
                 robot.grabberLimit.getState() ? "not pressed" : "pressed");

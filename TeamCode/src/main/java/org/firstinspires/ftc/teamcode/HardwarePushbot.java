@@ -59,7 +59,7 @@ public class HardwarePushbot
     public DcMotorEx  leftArm   = null;
     public DcMotorEx  rightArm   = null;
 
-//    public DcMotor  leftArm     = null;
+    // TODO: find which servo is unused and delete it from the code.
     public Servo leftClaw = null;
     public Servo rightClaw = null;
 
@@ -76,6 +76,7 @@ public class HardwarePushbot
     public static final double LEFT_SERVO_CLOSED     =  0.8 ;
     public static final double LEFT_SERVO_OPEN       =  0.55 ;
 
+    // TODO: set discrete positions of redesigned arm.
     public static final int LEFT_STOWED           =  0 ;
     public static final int LEFT_GRAB             =  144 ;
     public static final int LEFT_LEV1             =  141 ;
@@ -94,8 +95,7 @@ public class HardwarePushbot
 
 
     /* local OpMode members. */
-    HardwareMap hwMap           =  null;
-    private ElapsedTime period  = new ElapsedTime();
+    HardwareMap hwMap = null;
 
     /* Constructor */
     public HardwarePushbot(){
@@ -139,6 +139,8 @@ public class HardwarePushbot
         leftArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightArm.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
+        // Custom PID coefficients for the arm
+        // BE WARNED: DO NOT TOUCH THE I, D, OR F TERMS!  THERE ARE CONSEQUENCES!!!
         leftArm.setPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION,
                 new PIDFCoefficients(50.0, 0.0, 0.0, 0.0));
         rightArm.setPIDFCoefficients(DcMotor.RunMode.RUN_TO_POSITION,
@@ -159,47 +161,15 @@ public class HardwarePushbot
     }
 
     public void mecanumDrive(double drive, double strafe, double rotate) {
-        // Preserve the ratios of drive, strafe, and rotate if their sum is outside the [-1, 1] bounds
-//        if (drive + strafe + rotate > 1.0 || drive + strafe + rotate < 1.0) {
-//            double factor = 1 / (drive + strafe + rotate);
-//            drive *= factor;
-//            strafe *= factor;
-//            rotate *= factor;
-//        }
-//        if (drive - strafe - rotate > 1.0 || drive - strafe - rotate < 1.0) {
-//            double factor = 1 / (drive - strafe - rotate);
-//            drive *= factor;
-//            strafe *= factor;
-//            rotate *= factor;
-//        }
-//        if (drive + strafe - rotate > 1.0 || drive + strafe - rotate < 1.0) {
-//            double factor = 1 / (drive + strafe - rotate);
-//            drive *= factor;
-//            strafe *= factor;
-//            rotate *= factor;
-//        }
-//        if (drive - strafe + rotate > 1.0 || drive - strafe + rotate < 1.0) {
-//            double factor = 1 / (drive - strafe + rotate);
-//            drive *= factor;
-//            strafe *= factor;
-//            rotate *= factor;
-//        }
-
-
-//        rightFrontDrive.setPower(drive + strafe + rotate);
-//        leftFrontDrive.setPower(drive - strafe - rotate);
-//        leftRearDrive.setPower(drive + strafe - rotate);
-//        rightRearDrive.setPower(drive - strafe + rotate);
-
         double FR = drive + strafe + rotate;
         double FL = drive - strafe - rotate;
         double RL = drive + strafe - rotate;
         double RR = drive - strafe + rotate;
 
+        // Normalize drive variables so one of the motors doesn't peak too soon.
         double max = Math.max(
                 Math.max(Math.abs(FR), Math.abs(FL)),
                 Math.max(Math.abs(RL), Math.abs(RR)));
-
         if (max > 1) {
             FR /= max;
             FL /= max;
