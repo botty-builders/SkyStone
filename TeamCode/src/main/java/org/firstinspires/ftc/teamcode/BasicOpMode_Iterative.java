@@ -99,6 +99,7 @@ public class BasicOpMode_Iterative extends OpMode
     public void loop() {
         // Choose whether to drive with joystick or nudge with dpad
         // TODO: uncomment and edit dpad nudge code after arm positions are set.
+        // TODO: increase nudge drive speed.
 //        if (gamepad1.dpad_up || gamepad1.dpad_left || gamepad1.dpad_down || gamepad1.dpad_right) {
 //            drive = (gamepad1.dpad_down ? 0.1 : 0) - (gamepad1.dpad_up ? 0.1 : 0);
 //            strafe = (gamepad1.dpad_right ? 0.4 : 0) - (gamepad1.dpad_left ? 0.4 : 0);
@@ -114,19 +115,12 @@ public class BasicOpMode_Iterative extends OpMode
         // Check this first or else we won't be able to spit the block out.
         if (gamepad1.left_bumper) {
             robot.rightClaw.setPosition(1.0);
-            robot.leftClaw.setPosition(0.0);
-        // Turn off if the limit switch is hit
-        } else if (!robot.grabberLimit.getState()) {
-            robot.rightClaw.setPosition(0.5);
-            robot.leftClaw.setPosition(0.5);
-        // Suck the lego piece in.
+//            robot.leftClaw.setPosition(0.0);
+
         } else if (gamepad1.right_bumper) {
             robot.rightClaw.setPosition(0.0);
-            robot.leftClaw.setPosition(1.0);
-        // Slow inward creep by default
-        } else {
-            robot.rightClaw.setPosition(0.6);
-            robot.leftClaw.setPosition(0.4);
+//            robot.leftClaw.setPosition(1.0);
+
         }
 
         if (gamepad1.right_trigger > 0.05 || gamepad1.left_trigger > 0.05) { // set power for manual control

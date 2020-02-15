@@ -60,7 +60,7 @@ public class HardwarePushbot
     public DcMotorEx  rightArm   = null;
 
     // TODO: find which servo is unused and delete it from the code.
-    public Servo leftClaw = null;
+    // public Servo leftClaw = null;
     public Servo rightClaw = null;
 
     public DigitalChannel grabberLimit;
@@ -150,10 +150,10 @@ public class HardwarePushbot
         rightArm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         // Define and initialize ALL installed servos.
-        leftClaw = hwMap.get(Servo.class, "leftClaw");
+//        leftClaw = hwMap.get(Servo.class, "leftClaw");
         rightClaw = hwMap.get(Servo.class, "rightClaw");
-        leftClaw.setPosition(MID_SERVO);
-        rightClaw.setPosition(MID_SERVO);
+//        leftClaw.setPosition(MID_SERVO);
+//        rightClaw.setPosition(MID_SERVO);
 
         // Define and initialize all installed sensors
         grabberLimit = hwMap.get(DigitalChannel.class, "touchSensor");
