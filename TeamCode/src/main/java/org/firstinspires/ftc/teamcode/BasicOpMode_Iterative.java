@@ -32,7 +32,6 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 /**
@@ -64,8 +63,8 @@ public class BasicOpMode_Iterative extends OpMode
     private double rotate = 0.0;
     private double armPower = 0.0;
 
-    private int rightArmTemp = robot.RIGHT_LEV3;
-    private int leftArmTemp = robot.LEFT_LEV3;
+    private int rightArmTemp = robot.RIGHT_POS4;
+    private int leftArmTemp = robot.LEFT_POS4;
 
     /*
      * Code to run ONCE when the driver hits INIT
@@ -142,23 +141,23 @@ public class BasicOpMode_Iterative extends OpMode
         }
 
         if (gamepad1.a) {
-            robot.rightArm.setTargetPosition(robot.RIGHT_GRAB);
-            robot.leftArm.setTargetPosition(robot.LEFT_GRAB);
+            robot.rightArm.setTargetPosition(robot.RIGHT_POS1);
+            robot.leftArm.setTargetPosition(robot.LEFT_POS1);
             robot.rightArm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             robot.leftArm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         } else if (gamepad1.x) {
-            robot.rightArm.setTargetPosition(robot.RIGHT_LEV1);
-            robot.leftArm.setTargetPosition(robot.LEFT_LEV1);
+            robot.rightArm.setTargetPosition(robot.RIGHT_POS2);
+            robot.leftArm.setTargetPosition(robot.LEFT_POS2);
             robot.rightArm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             robot.leftArm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         } else if (gamepad1.y) {
-            robot.rightArm.setTargetPosition(robot.RIGHT_BRIDGE);
-            robot.leftArm.setTargetPosition(robot.LEFT_BRIDGE);
+            robot.rightArm.setTargetPosition(robot.RIGHT_POS3);
+            robot.leftArm.setTargetPosition(robot.LEFT_POS3);
             robot.rightArm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             robot.leftArm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         } else if (gamepad1.b) {
-            robot.rightArm.setTargetPosition(robot.RIGHT_LEV3);
-            robot.leftArm.setTargetPosition(robot.LEFT_LEV3);
+            robot.rightArm.setTargetPosition(robot.RIGHT_POS4);
+            robot.leftArm.setTargetPosition(robot.LEFT_POS4);
             robot.rightArm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             robot.leftArm.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         }

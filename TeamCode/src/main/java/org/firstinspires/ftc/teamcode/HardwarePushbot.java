@@ -60,7 +60,6 @@ public class HardwarePushbot
     public DcMotorEx  rightArm   = null;
 
     // TODO: find which servo is unused and delete it from the code.
-    // public Servo leftClaw = null;
     public Servo rightClaw = null;
 
     public DigitalChannel grabberLimit;
@@ -77,16 +76,14 @@ public class HardwarePushbot
     public static final double LEFT_SERVO_OPEN       =  0.55 ;
 
     // TODO: set discrete positions of redesigned arm.
-    public static final int LEFT_STOWED           =  0 ;
-    public static final int LEFT_GRAB             =  144 ;
-    public static final int LEFT_LEV1             =  141 ;
-    public static final int LEFT_BRIDGE           =  130 ;
-    public static final int LEFT_LEV3             =  120 ;
-    public static final int RIGHT_STOWED          =  0;
-    public static final int RIGHT_GRAB            =  -174 ;
-    public static final int RIGHT_LEV1            =  -170 ;
-    public static final int RIGHT_BRIDGE          =  -158 ;
-    public static final int RIGHT_LEV3            =  -145 ;
+    public static final int LEFT_POS1 = 132;
+    public static final int LEFT_POS2 = 116;
+    public static final int LEFT_POS3 = 101;
+    public static final int LEFT_POS4 = 93;
+    public static final int RIGHT_POS1 = -157;
+    public static final int RIGHT_POS2 = -141;
+    public static final int RIGHT_POS3 = -126;
+    public static final int RIGHT_POS4 = -118;
 
     public double rightFrontLastPos = 0.0;
     public double leftFrontLastPos = 0.0;
@@ -150,10 +147,7 @@ public class HardwarePushbot
         rightArm.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         // Define and initialize ALL installed servos.
-//        leftClaw = hwMap.get(Servo.class, "leftClaw");
         rightClaw = hwMap.get(Servo.class, "rightClaw");
-//        leftClaw.setPosition(MID_SERVO);
-//        rightClaw.setPosition(MID_SERVO);
 
         // Define and initialize all installed sensors
         grabberLimit = hwMap.get(DigitalChannel.class, "touchSensor");
